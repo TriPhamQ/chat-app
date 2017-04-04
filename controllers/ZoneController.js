@@ -13,7 +13,7 @@ module.exports = {
         });
     },
     findById: function (id, callback) {
-        Zone.findOne({_id: id}, function (err, zone) {
+        Zone.findById(id, function (err, zone) {
             if (err) {
                 callback(err, null);
                 return;
@@ -23,13 +23,41 @@ module.exports = {
             };
         });
     },
-    create: function () {
-
+    create: function (params, callback) {
+        params['zip'] = params['zip'].split(',');
+        params['zip'].forEach(function (value, index){
+            params['zip'][index] = value.trim();
+        });
+        Zone.create(params, function (err, zone) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            else {
+                callback(null, zone);
+            };
+        });
     },
-    update: function () {
-
+    update: function (id, params, callback) {
+        Zone.findByIdAndUpdate(id, params, {new: true}, function (err, zone) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            else {
+                callback(null, zone);
+            };
+        });
     },
-    destroy: function () {
-
+    delete: function (id, callback) {
+        Zone.findByIdAndRemove(id, function (err) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            else {
+                callback(null, null);
+            };
+        });
     }
-}
+};
