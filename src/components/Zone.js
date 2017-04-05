@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
+import styles from './styles';
 
 class Zone extends Component {
     render() {
-        return(
-            <div>
-                <h2><a href="#">Zone 1</a></h2>
-                <span>90001</span><br/>
-                <span>10 comments</span>
+        const zoneStyle = styles.zone;
+
+        return (
+            <div style={zoneStyle.container}>
+                <h2 style={zoneStyle.header}><a href="#" style={zoneStyle.title}>{this.props.currentZone.name}</a></h2>
+                <span className="detail">{this.props.currentZone.zip}</span><br/>
+                <span className="detail">{this.props.currentZone.numComments} comments</span>
             </div>
-        )
-    }
+        );
+    };
 };
 
 export default Zone;
