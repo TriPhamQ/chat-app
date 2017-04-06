@@ -1,56 +1,54 @@
 import React, { Component } from 'react';
-import Zone from '../presentation/Zone';
-import superagent from 'superagent';
+import { Zone, CreateZone } from '../presentation';
+import { APIManager } from '../../utils';
 
 class Zones extends Component {
     constructor() {
         super();
         this.state = {
-            list: [],
-            zone: {
-                name: '',
-                zip: ''
-            }
+            selected: 0,
+            list: []
         };
     };
     componentDidMount() {
-        console.log('Component Did Mount');
-        superagent
-        .get('/api/zone')
-        .query(null)
-        .set('Accept', 'application/json')
-        .end((err, response) => {
+        APIManager.get('/api/zone', null, (err, response) => {
             if (err) {
-                alert('ERROR: ' + err)
+                alert('ERROR: ' + err.message)
             }
             else {
-                console.log(response.body);
-                let results = response.body.results;
                 this.setState({
-                    list: results
-                })
-            }
-        })
-    };
-    submitZone(){
-        let updatedList = Object.assign([], this.state.list);
-        updatedList.push(this.state.zone);
-        this.setState({
-            list: updatedList
+                    list: response.results
+                });
+            };
         });
     };
-    updateZone(event) {
-        let updatedZone = Object.assign({}, this.state.zone);
-        updatedZone[event.target.id] = event.target.value;
+    submitZone(zone){
+        let newZone = Object.assign({}, zone);
+        APIManager.post('/api/zone', newZone, (err, response) => {
+            if (err) {
+                alert('ERROR: ' + err.message);
+                return
+            }
+            else {
+                let updatedList = Object.assign([], this.state.list);
+                updatedList.push(response.result);
+                this.setState({
+                    list: updatedList
+                });
+            };
+        });
+    };
+    selectZone(index) {
         this.setState({
-            zone: updatedZone
+            selected: index
         });
     };
 
     render() {
         const listItems = this.state.list.map((zone, index) => {
+            let selected = (index == this.state.selected);
             return (
-                <li key={index}><Zone currentZone={zone} /></li>
+                <li key={index}><Zone index={index} select={this.selectZone.bind(this)} isSelected={selected} currentZone={zone} /></li>
             );
         });
 
@@ -59,9 +57,7 @@ class Zones extends Component {
                 <ol>
                     {listItems}
                 </ol>
-                <input id="name" onChange={this.updateZone.bind(this)} className="form-control" type="text" placeholder="Zone Name"></input><br />
-                <input id="zip" onChange={this.updateZone.bind(this)} className="form-control" type="text" placeholder="Zip Code"></input><br />
-                <button onClick={this.submitZone.bind(this)} className="btn btn-info">Submit Zone</button>
+                <CreateZone onCreate={this.submitZone.bind(this)} />
             </div>
         );
     };
